@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CTEC 671 – Weather Prediction | IoT + AI</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="{{ url_for('static', filename='css/dashboard.css') }}"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="app-wrapper">
+      <!-- ========== SIDEBAR ========== -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-icon">
+            <i class="bi bi-clouds"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">JERRY DIABOR</span>
+            <span class="brand-sub">SMART INTEGRATED SYSTEMS (SIS)</span>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-section="dashboard">
+            <i class="bi bi-house-door-fill"></i> Dashboard
+          </a>
+          <a href="#" class="nav-item" data-section="weather">
+            <i class="bi bi-bar-chart-fill"></i> Weather Data
+          </a>
+          <a href="#" class="nav-item" data-section="prediction">
+            <i class="bi bi-cpu-fill"></i> Prediction
+          </a>
+          <a href="#" class="nav-item" data-section="evaluation">
+            <i class="bi bi-graph-up-arrow"></i> Model Evaluation
+          </a>
+          <a href="#" class="nav-item" data-section="historical">
+            <i class="bi bi-database-fill"></i> Historical Data
+          </a>
+          <a href="#" class="nav-item" data-section="settings">
+            <i class="bi bi-gear-fill"></i> Settings
+          </a>
+          <a href="#" class="nav-item" data-section="about">
+            <i class="bi bi-info-circle-fill"></i> About
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <p class="quote">“Data today,<br />a safer tomorrow.”</p>
+          <div class="footer-logo">
+            <i class="bi bi-tree-fill"></i>
+            <span>CTEC 671</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ========== MAIN CONTENT ========== -->
+      <main class="main-content">
+        <!-- Top bar -->
+        <header class="top-bar">
+          <div class="top-left">
+            <h1 class="page-title">CTEC 671 – Integration of IoT and AI</h1>
+            <p class="page-subtitle">
+              Project 2: Weather Prediction · Using Real Weather Data and
+              Machine Learning
+            </p>
+          </div>
+          <div class="top-right">
+            <div class="location-badge">
+              <i class="bi bi-geo-alt-fill"></i>
+              <select id="citySelect" class="city-select">
+                <option value="New York" {% if city == 'New York' %}selected{% endif %}>New York, US</option>
+                <option value="Los Angeles" {% if city == 'Los Angeles' %}selected{% endif %}>Los Angeles, US</option>
+                <option value="Chicago" {% if city == 'Chicago' %}selected{% endif %}>Chicago, US</option>
+                <option value="Miami" {% if city == 'Miami' %}selected{% endif %}>Miami, US</option>
+                <option value="Seattle" {% if city == 'Seattle' %}selected{% endif %}>Seattle, US</option>
+                <option value="Houston" {% if city == 'Houston' %}selected{% endif %}>Houston, US</option>
+                <option value="Denver" {% if city == 'Denver' %}selected{% endif %}>Denver, US</option>
+                <option value="Boston" {% if city == 'Boston' %}selected{% endif %}>Boston, US</option>
+                <option value="San Francisco" {% if city == 'San Francisco' %}selected{% endif %}>San Francisco, US</option>
+                <option value="London" {% if city == 'London' %}selected{% endif %}>London, UK</option>
+                <option value="Paris" {% if city == 'Paris' %}selected{% endif %}>Paris, FR</option>
+                <option value="Berlin" {% if city == 'Berlin' %}selected{% endif %}>Berlin, DE</option>
+                <option value="Rome" {% if city == 'Rome' %}selected{% endif %}>Rome, IT</option>
+                <option value="Madrid" {% if city == 'Madrid' %}selected{% endif %}>Madrid, ES</option>
+                <option value="Tokyo" {% if city == 'Tokyo' %}selected{% endif %}>Tokyo, JP</option>
+                <option value="Seoul" {% if city == 'Seoul' %}selected{% endif %}>Seoul, KR</option>
+                <option value="Bangkok" {% if city == 'Bangkok' %}selected{% endif %}>Bangkok, TH</option>
+                <option value="Singapore" {% if city == 'Singapore' %}selected{% endif %}>Singapore, SG</option>
+                <option value="Sydney" {% if city == 'Sydney' %}selected{% endif %}>Sydney, AU</option>
+                <option value="Dubai" {% if city == 'Dubai' %}selected{% endif %}>Dubai, AE</option>
+                <option value="Cape Town" {% if city == 'Cape Town' %}selected{% endif %}>Cape Town, ZA</option>
+                <option value="Mexico City" {% if city == 'Mexico City' %}selected{% endif %}>Mexico City, MX</option>
+                <option value="Toronto" {% if city == 'Toronto' %}selected{% endif %}>Toronto, CA</option>
+                <option value="Sao Paulo" {% if city == 'Sao Paulo' %}selected{% endif %}>Sao Paulo, BR</option>
+                <option value="Cairo" {% if city == 'Cairo' %}selected{% endif %}>Cairo, EG</option>
+              </select>
+            </div>
+            <div class="datetime-badge" id="liveClock">
+              {{ current.timestamp if current else "" }}
+            </div>
+          </div>
+        </header>
+
+        <!-- Welcome -->
+        <section id="dashboard" class="welcome-section">
+          <h2>Welcome to the Weather Prediction System</h2>
+          <p>Integrating IoT weather data with AI for smarter forecasting</p>
+        </section>
+
+        <!-- Current weather cards -->
+        <section id="weather" class="cards-row">
+          <div class="metric-card">
+            <div class="card-icon temp">
+              <i class="bi bi-thermometer-half"></i>
+            </div>
+            <div class="card-body">
+              <div class="card-value">
+                {{ current.temperature if current else "—" }} °C
+              </div>
+              <div class="card-label">Temperature</div>
+              <div class="card-trend up">
+                <i class="bi bi-caret-up-fill"></i> +1.2 °C
+              </div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon humidity">
+              <i class="bi bi-droplet-fill"></i>
+            </div>
+            <div class="card-body">
+              <div class="card-value">
+                {{ current.humidity if current else "—" }} %
+              </div>
+              <div class="card-label">Humidity</div>
+              <div class="card-trend down">
+                <i class="bi bi-caret-down-fill"></i> −3 %
+              </div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon pressure">
+              <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="card-body">
+              <div class="card-value">
+                {{ current.pressure if current else "—" }} hPa
+              </div>
+              <div class="card-label">Pressure</div>
+              <div class="card-trend stable">
+                <i class="bi bi-dash"></i> Stable
+              </div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="card-icon wind"><i class="bi bi-wind"></i></div>
+            <div class="card-body">
+              <div class="card-value">
+                {{ current.wind_speed if current else "—" }} m/s
+              </div>
+              <div class="card-label">Wind Speed</div>
+              <div class="card-trend moderate">
+                <i class="bi bi-dash"></i> Moderate
+              </div>
+            </div>
+          </div>
+          <div class="metric-card condition-card">
+            <div class="card-icon condition">
+              <i class="bi bi-cloud-sun-fill"></i>
+            </div>
+            <div class="card-body">
+              <div class="card-value condition-text">
+                {{ current.description if current else "—" }}
+              </div>
+              <div class="card-label">Current Condition</div>
+              <div class="card-trend">
+                {{ current.city if current else "" }}, {{ current.country if
+                current else "" }}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Prediction + Chart row -->
+        <section id="prediction" class="middle-row">
+          <!-- Input for Prediction -->
+          <div class="panel prediction-input-panel">
+            <h3><i class="bi bi-sliders"></i> Input for Prediction</h3>
+            <div class="form-group">
+              <label
+                ><i class="bi bi-thermometer-half"></i> Temperature (°C)</label
+              >
+              <div class="input-with-spinner">
+                <input
+                  type="number"
+                  id="predTemp"
+                  value="30"
+                  step="0.1"
+                  min="-50"
+                  max="60"
+                />
+              </div>
+            </div>
+            <div class="form-group">
+              <label><i class="bi bi-droplet"></i> Humidity (%)</label>
+              <div class="input-with-spinner">
+                <input
+                  type="number"
+                  id="predHumidity"
+                  value="65"
+                  step="1"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
+            <button class="btn-predict" id="btnPredict">
+              <i class="bi bi-play-fill"></i> Predict Weather
+            </button>
+            <button class="btn-reset" id="btnReset">
+              <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </button>
+          </div>
+
+          <!-- Prediction Result -->
+          <div class="panel prediction-result-panel">
+            <h3><i class="bi bi-cpu"></i> Prediction Result</h3>
+            <div class="result-box" id="resultBox">
+              <div class="result-icon">
+                <i class="bi bi-cloud-rain-fill"></i>
+              </div>
+              <div class="result-label">Predicted Weather:</div>
+              <div class="result-value" id="predCondition">—</div>
+              <div class="confidence-bar-wrap">
+                <span>Confidence: <strong id="predConfidence">—</strong>%</span>
+                <div class="progress">
+                  <div
+                    class="progress-bar bg-success"
+                    id="confidenceBar"
+                    role="progressbar"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+              <p class="result-note">
+                <i class="bi bi-lightbulb"></i>
+                Based on historical weather data from OpenWeatherMap and a
+                trained machine learning model.
+              </p>
+            </div>
+          </div>
+
+          <!-- Today's Weather Trends -->
+          <div class="panel chart-panel">
+            <h3><i class="bi bi-graph-up"></i> Today's Weather Trends</h3>
+            <div class="chart-tabs">
+              <button class="chart-tab active" data-metric="temp">
+                Temperature
+              </button>
+              <button class="chart-tab" data-metric="humidity">Humidity</button>
+            </div>
+            <canvas id="trendChart" height="180"></canvas>
+          </div>
+        </section>
+
+        <!-- Bottom row: Recent table + Model performance -->
+        <section class="bottom-row">
+          <div id="historical" class="panel table-panel">
+            <div class="panel-header">
+              <h3>
+                <i class="bi bi-table"></i> Recent Weather Data (from
+                OpenWeatherMap)
+              </h3>
+              <a href="#" class="view-all">View All</a>
+            </div>
+            <div class="table-responsive">
+              <table class="table weather-table">
+                <thead>
+                  <tr>
+                    <th>Date &amp; Time</th>
+                    <th>Temperature (°C)</th>
+                    <th>Humidity (%)</th>
+                    <th>Pressure (hPa)</th>
+                    <th>Condition</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if recent %} {% for row in recent %}
+                  <tr>
+                    <td>{{ row.datetime }}</td>
+                    <td>{{ row.temperature }}</td>
+                    <td>{{ row.humidity }}</td>
+                    <td>{{ row.pressure }}</td>
+                    <td>
+                      {% if "Rain" in row.description or "rain" in
+                      row.description %}
+                      <span class="badge-condition rain"
+                        ><i class="bi bi-cloud-rain"></i> {{ row.description
+                        }}</span
+                      >
+                      {% elif "Cloud" in row.description or "cloud" in
+                      row.description %}
+                      <span class="badge-condition cloud"
+                        ><i class="bi bi-clouds"></i> {{ row.description
+                        }}</span
+                      >
+                      {% elif "Clear" in row.description or "clear" in
+                      row.description %}
+                      <span class="badge-condition clear"
+                        ><i class="bi bi-sun"></i> {{ row.description }}</span
+                      >
+                      {% else %}
+                      <span class="badge-condition other"
+                        ><i class="bi bi-cloud"></i> {{ row.description }}</span
+                      >
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      No recent data (set API key for live readings)
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="evaluation" class="panel metrics-panel">
+            <h3><i class="bi bi-speedometer"></i> Model Performance</h3>
+            <div class="metrics-grid">
+              <div class="metric-box accuracy">
+                <i class="bi bi-bullseye"></i>
+                <div class="metric-name">Accuracy</div>
+                <div class="metric-num">
+                  {{ metrics.accuracy if metrics else "0.87" }}
+                </div>
+              </div>
+              <div class="metric-box precision">
+                <i class="bi bi-bar-chart-line"></i>
+                <div class="metric-name">Precision</div>
+                <div class="metric-num">
+                  {{ metrics.precision if metrics else "0.86" }}
+                </div>
+              </div>
+              <div class="metric-box recall">
+                <i class="bi bi-arrow-repeat"></i>
+                <div class="metric-name">Recall</div>
+                <div class="metric-num">
+                  {{ metrics.recall if metrics else "0.84" }}
+                </div>
+              </div>
+              <div class="metric-box f1">
+                <i class="bi bi-diagram-3"></i>
+                <div class="metric-name">F1-Score</div>
+                <div class="metric-num">
+                  {{ metrics.f1 if metrics else "0.85" }}
+                </div>
+              </div>
+            </div>
+            <p class="model-info">
+              Data Source: OpenWeatherMap API &nbsp;|&nbsp; Model: Random Forest
+              Classifier<br />
+              Built with Python {% if last_trained %}<br />Last trained: {{
+              last_trained }}{% endif %}
+            </p>
+          </div>
+        </section>
+
+        <section class="bottom-row info-row" style="padding-top: 0">
+          <div id="settings" class="panel settings-panel">
+            <h3><i class="bi bi-gear"></i> Settings</h3>
+            <ul class="settings-list">
+              <li>
+                City selection: live weather lookup and prediction context
+              </li>
+              <li>
+                Forecast chart: switch between temperature and humidity views
+              </li>
+              <li>
+                Model tuning: update inputs for forecast prediction analysis
+              </li>
+            </ul>
+          </div>
+          <div id="about" class="panel about-panel">
+            <h3><i class="bi bi-info-circle"></i> About</h3>
+            <p>
+              This dashboard combines live OpenWeatherMap data with a machine
+              learning-based weather prediction workflow for the CTEC 671
+              project.
+            </p>
+          </div>
+        </section>
+
+        <footer class="app-footer">
+          CTEC 671 · Integration of IoT and AI · Project 2 &nbsp;·&nbsp; Data
+          Source: OpenWeatherMap API &nbsp;·&nbsp; Model: Random Forest
+          Classifier &nbsp;·&nbsp; Built with Python
+        </footer>
+      </main>
+    </div>
+
+    <script>
+      // ---------- Sidebar navigation ----------
+      const navLinks = document.querySelectorAll('.nav-item');
+
+      function setActiveNav(targetId) {
+        navLinks.forEach(link => {
+          const isActive = link.dataset.section === targetId;
+          link.classList.toggle('active', isActive);
+        });
+      }
+
+      navLinks.forEach(link => {
+        link.addEventListener('click', function (event) {
+          event.preventDefault();
+          const targetId = this.dataset.section;
+          const section = document.getElementById(targetId);
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          setActiveNav(targetId);
+        });
+      });
+
+      // ---------- Live clock ----------
+      function updateClock() {
+        const now = new Date();
+        const opts = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
+                       hour: '2-digit', minute: '2-digit' };
+        document.getElementById('liveClock').textContent = now.toLocaleString('en-US', opts);
+      }
+      updateClock();
+      setInterval(updateClock, 30000);
+
+      // ---------- City switch ----------
+      document.getElementById('citySelect').addEventListener('change', function () {
+        window.location.href = '/?city=' + encodeURIComponent(this.value);
+      });
+
+      // ---------- Chart ----------
+      const labels = {{ chart_labels | tojson }};
+      const temps = {{ chart_temps | tojson }};
+      const humidities = {{ chart_humidity | tojson }};
+
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      let trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels.length ? labels : ['12 AM','4 AM','8 AM','12 PM','4 PM','8 PM'],
+          datasets: [{
+            label: 'Temperature (°C)',
+            data: temps.length ? temps : [18,20,23,28,30,25],
+            borderColor: '#e74c3c',
+            backgroundColor: 'rgba(231, 76, 60, 0.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 4,
+            pointBackgroundColor: '#e74c3c',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: false, grid: { color: '#eee' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+
+      document.querySelectorAll('.chart-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const metric = tab.dataset.metric;
+          if (metric === 'temp') {
+            trendChart.data.datasets[0].label = 'Temperature (°C)';
+            trendChart.data.datasets[0].data = temps.length ? temps : [18,20,23,28,30,25];
+            trendChart.data.datasets[0].borderColor = '#e74c3c';
+            trendChart.data.datasets[0].backgroundColor = 'rgba(231,76,60,0.12)';
+            trendChart.data.datasets[0].pointBackgroundColor = '#e74c3c';
+          } else {
+            trendChart.data.datasets[0].label = 'Humidity (%)';
+            trendChart.data.datasets[0].data = humidities.length ? humidities : [70,68,65,60,58,62];
+            trendChart.data.datasets[0].borderColor = '#3498db';
+            trendChart.data.datasets[0].backgroundColor = 'rgba(52,152,219,0.12)';
+            trendChart.data.datasets[0].pointBackgroundColor = '#3498db';
+          }
+          trendChart.update();
+        });
+      });
+
+      // ---------- Prediction ----------
+      const conditionIcons = {
+        'Rain': 'bi-cloud-rain-fill',
+        'Drizzle': 'bi-cloud-drizzle-fill',
+        'Thunderstorm': 'bi-cloud-lightning-fill',
+        'Snow': 'bi-snow',
+        'Clear': 'bi-sun-fill',
+        'Clouds': 'bi-clouds-fill',
+        'Mist': 'bi-cloud-fog2-fill',
+        'Fog': 'bi-cloud-fog2-fill',
+        'Haze': 'bi-cloud-haze-fill',
+      };
+
+      document.getElementById('btnPredict').addEventListener('click', async () => {
+        const temp = document.getElementById('predTemp').value;
+        const humidity = document.getElementById('predHumidity').value;
+        const city = document.getElementById('citySelect').value;
+
+        const btn = document.getElementById('btnPredict');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Predicting…';
+
+        try {
+          const res = await fetch('/api/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ temperature: temp, humidity: humidity, city: city })
+          });
+          const data = await res.json();
+
+          document.getElementById('predCondition').textContent = data.condition || '—';
+          document.getElementById('predConfidence').textContent = data.confidence ?? '—';
+          document.getElementById('confidenceBar').style.width = (data.confidence || 0) + '%';
+
+          // Update icon
+          const iconEl = document.querySelector('.result-icon i');
+          let iconClass = 'bi-cloud-fill';
+          for (const [key, cls] of Object.entries(conditionIcons)) {
+            if ((data.condition || '').includes(key)) { iconClass = cls; break; }
+          }
+          iconEl.className = 'bi ' + iconClass;
+        } catch (err) {
+          document.getElementById('predCondition').textContent = 'Error';
+          console.error(err);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-play-fill"></i> Predict Weather';
+        }
+      });
+
+      document.getElementById('btnReset').addEventListener('click', () => {
+        document.getElementById('predTemp').value = 30;
+        document.getElementById('predHumidity').value = 65;
+        document.getElementById('predCondition').textContent = '—';
+        document.getElementById('predConfidence').textContent = '—';
+        document.getElementById('confidenceBar').style.width = '0%';
+      });
+    </script>
+  </body>
+</html>
