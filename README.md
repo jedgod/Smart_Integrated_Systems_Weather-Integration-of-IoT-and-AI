@@ -146,10 +146,10 @@ If no valid `OPENWEATHER_API_KEY` is set, the dashboard still loads with realist
 ### Author / Course
 
 **CTEC 671 – Smart Integrated Systems / Integration of IoT and AI**  
-Project 2 – due May 7, 2023 (adapted for current use)
+Project 2
 
 ---
 
 ### License
 
-This project is provided for educational purposes as part of CTEC 671 coursework.
+This project is provided for educational purposes as part of CTEC 671 Research & Coursework.
