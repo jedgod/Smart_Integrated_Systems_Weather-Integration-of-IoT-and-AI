@@ -144,7 +144,10 @@ If no valid `OPENWEATHER_API_KEY` is set, the dashboard still loads with realist
 ---
 
 ### Author / Course
-
+### Jerry Diabor
+### Department of Computer Science
+### Bowie State University
+### Bowie, MD
 **CTEC 671 – Smart Integrated Systems / Integration of IoT and AI**  
 Project 2
 
